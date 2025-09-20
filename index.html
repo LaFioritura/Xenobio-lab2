@@ -1,225 +1,375 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-  <title>XENOBIO // PRO TERMINAL</title>
-  <meta name="description" content="Professional terminal simulation with procedural bioform, research, quests, and economy.">
-  <link rel="preload" as="audio" href="assets/media/click.wav">
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+  <title>XENOBIO LAB // Terminal Simulation</title>
+  <meta name="description" content="Containment terminal simulation with permadeath, offline decay, quests, R&D and an in-terminal store."/>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="assets/img/icon-64.png" sizes="64x64">
+  <link rel="apple-touch-icon" href="assets/img/icon-192.png">
+  <meta name="theme-color" content="#0d1117"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/styles.css" />
 </head>
 <body>
-  <div id="gdpr" class="banner">
-    <div>
-      <strong>DATA PROTOCOL.</strong> This simulation stores data locally (LocalStorage/Cache). No personal data is transmitted.
-      <button id="gdprAccept">Accept</button>
-      <button id="gdprDecline">Decline</button>
-    </div>
-  </div>
-
-  <header class="topbar">
-    <div class="brand">BIOFORM ISOLATION TERMINAL // PRO</div>
-    <div class="stats">
-      <span id="funds">CR 0</span>
-      <span id="premium">PC 0</span>
-      <span id="rp">RP 0</span>
-      <span id="threat">THREAT: —</span>
-      <span id="uptime">UPTIME 00:00</span>
-      <label class="toggle"><input type="checkbox" id="audioToggle" checked> Audio</label>
-      <label class="toggle"><input type="checkbox" id="compactToggle"> Compact</label>
-      <button id="resetBtn" class="danger">Reset</button>
+  <header class="header">
+    <div class="system-id">BIOFORM ISOLATION TERMINAL // BETA-9</div>
+    <div class="status-bar">
+      <div class="status-item"><span>FUNDS:</span> <span class="status-value" id="uiFunds">1500</span></div>
+      <div class="status-item"><span>R&D:</span> <span class="status-value" id="uiResearch">0</span></div>
+      <div class="status-item"><span>THREAT:</span> <span class="status-value" id="uiThreat">MINIMAL</span></div>
+      <div class="status-item"><span>UPTIME:</span> <span class="status-value" id="uiUptime">00:00</span></div>
+      <button id="btnAudio" class="chip">Audio: ON</button>
+      <button id="btnCompact" class="chip">Compact: OFF</button>
+      <button id="btnReset" class="chip dangerous">Reset</button>
     </div>
   </header>
 
   <main class="grid">
-    <section class="col chamber">
-      <h2>ISOLATION CHAMBER</h2>
-      <canvas id="bioCanvas" width="480" height="300" aria-label="Bioform visualization"></canvas>
-      <div class="bars">
-        <div class="bar"><label>Containment</label><div><i id="barContainment"></i></div></div>
-        <div class="bar"><label>Coherence</label><div><i id="barCoherence"></i></div></div>
-        <div class="bar"><label>Metamorph</label><div><i id="barMetamorph"></i></div></div>
-        <div class="bar"><label>Entropy</label><div><i id="barEntropy"></i></div></div>
-        <div class="bar"><label>Cognition</label><div><i id="barCognition"></i></div></div>
+    <section class="chamber card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">ISOLATION CHAMBER</div>
+          <div class="card-sub">Subject BF-7734 · Classification: VOLATILE</div>
+        </div>
+        <div class="chip threat" id="chipThreat">MINIMAL</div>
       </div>
-      <div class="subject" id="subjectLine">Subject —</div>
+
+      <div class="specimen" id="specimen">
+        <div class="bioform" id="bioform" role="button" aria-label="Interact with specimen">●</div>
+        <canvas id="specimenFx" class="fx"></canvas>
+      </div>
+
+      <div class="vitals">
+        <div class="vital">
+          <div class="vital-label">Containment</div>
+          <div class="vital-row">
+            <div class="bar"><span id="barContainment" class="fill" style="width:100%"></span></div>
+            <div id="vContainment" class="vital-val">100</div>
+          </div>
+        </div>
+        <div class="vital">
+          <div class="vital-label">Coherence</div>
+          <div class="vital-row">
+            <div class="bar"><span id="barCoherence" class="fill" style="width:75%"></span></div>
+            <div id="vCoherence" class="vital-val">75</div>
+          </div>
+        </div>
+        <div class="vital">
+          <div class="vital-label">Metamorph</div>
+          <div class="vital-row">
+            <div class="bar"><span id="barMetamorph" class="fill" style="width:0%"></span></div>
+            <div id="vMetamorph" class="vital-val">0</div>
+          </div>
+        </div>
+        <div class="vital">
+          <div class="vital-label">Mutations</div>
+          <div class="vital-row">
+            <div class="bar"><span id="barMutations" class="fill" style="width:10%"></span></div>
+            <div id="vMutations" class="vital-val">1</div>
+          </div>
+        </div>
+        <div class="vital">
+          <div class="vital-label">Cognition</div>
+          <div class="vital-row">
+            <div class="bar"><span id="barCognition" class="fill" style="width:25%"></span></div>
+            <div id="vCognition" class="vital-val">25</div>
+          </div>
+        </div>
+        <div class="vital">
+          <div class="vital-label">Entropy</div>
+          <div class="vital-row">
+            <div class="bar"><span id="barEntropy" class="fill" style="width:15%"></span></div>
+            <div id="vEntropy" class="vital-val">15</div>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section class="col controls">
-      <nav class="tabs" role="tablist">
-        <button class="tab active" data-tab="protocols">Protocols</button>
-        <button class="tab" data-tab="requisition">Requisition</button>
-        <button class="tab" data-tab="research">R&amp;D</button>
-        <button class="tab" data-tab="missions">Quests</button>
-        <button class="tab" data-tab="database">Database</button>
-        <button class="tab" data-tab="settings">Settings</button>
+    <aside class="rightcol">
+      <nav class="tabs card">
+        <button class="tab is-active" data-target="tab-protocols">Protocols</button>
+        <button class="tab" data-target="tab-store">Requisition</button>
+        <button class="tab" data-target="tab-research">R&amp;D</button>
+        <button class="tab" data-target="tab-manual">Database</button>
+        <button class="tab" data-target="tab-quests">Quests</button>
+        <button class="tab" data-target="tab-settings">Settings</button>
       </nav>
 
-      <div class="panel show" id="panel-protocols">
-        <h3>Primary Protocols</h3>
-        <div class="btns">
-          <button data-action="stabilize">Stabilize</button>
-          <button data-action="monitor">Monitor</button>
-          <button data-action="analyze">Analyze</button>
-          <button data-action="reinforce">Reinforce</button>
+      <section id="tab-protocols" class="panel card is-active">
+        <h4 class="panel-title info">Primary Protocols</h4>
+        <div class="grid2">
+          <button class="btn" data-action="stabilize" data-cost="25">Stabilize</button>
+          <button class="btn" data-action="monitor" data-cost="10">Monitor</button>
+          <button class="btn" data-action="analyze" data-cost="15">Analyze</button>
+          <button class="btn" data-action="reinforce" data-cost="50">Reinforce</button>
         </div>
-        <h3>Experimental Protocols</h3>
-        <div class="btns">
-          <button data-action="stimulate">Stimulate</button>
-          <button data-action="stress">Stress Test</button>
-          <button data-action="mutate">Induce Mutation</button>
-          <button data-action="metamorph">Force Metamorph</button>
+        <h4 class="panel-title warn">Experimental Protocols</h4>
+        <div class="grid2">
+          <button class="btn danger" data-action="stimulate" data-cost="30">Stimulate</button>
+          <button class="btn danger" data-action="stress_test" data-cost="40">Stress Test</button>
+          <button class="btn danger" data-action="induce_mutation" data-cost="60">Induce Mutation</button>
+          <button class="btn danger" data-action="force_metamorph" data-cost="80">Force Metamorph</button>
         </div>
-        <h3>Advanced Protocols</h3>
-        <div class="btns">
-          <button data-action="deepscan">Deep Scan</button>
-          <button data-action="neural">Neural Link</button>
-          <button data-action="extract">Extract Samples</button>
-          <button data-action="emergency">Emergency</button>
+        <h4 class="panel-title ok">Advanced Protocols</h4>
+        <div class="grid2">
+          <button class="btn" data-action="deep_scan" data-cost="100">Deep Scan</button>
+          <button class="btn" data-action="neural_interface" data-cost="75">Neural Link</button>
+          <button class="btn" data-action="extract_samples" data-cost="120">Extract Samples</button>
+          <button class="btn" data-action="emergency_protocol" data-cost="200">Emergency</button>
         </div>
-        <p class="helper">Keyboard: S Stabilize · M Monitor · A Analyze · R Reinforce · T Stimulate · X Stress · Space Interact · Esc Close.</p>
-      </div>
 
-      <div class="panel" id="panel-requisition">
-        <h3>Research Agency — Funding Console</h3>
+        <div class="objective">
+          <div class="objective-title">Current Objective</div>
+          <div id="uiObjective" class="objective-desc">Keep Containment ≥ 80% for 180s.</div>
+        </div>
+        <div class="objective ok">
+          <div class="objective-title">Next Milestone</div>
+          <div id="uiMilestone" class="objective-desc">Accumulate 150 RP for a Research Breakthrough.</div>
+        </div>
+      </section>
+
+      <section id="tab-store" class="panel card">
+        <div class="objective ok" id="fundingConsole">
+          <div class="objective-title">Research Agency — Funding Console</div>
+          <div class="objective-desc">
+            Request emergency credits when low on funds, or publish data packages for credits. Cooldowns apply.
+            <div style="margin-top:6px; display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="btn tiny grant" data-grant="micro">Request Microgrant</button>
+              <button class="btn tiny publish" data-publish="data">Publish Findings (50 RP → 200 CR)</button>
+              <span class="quest-meta" id="grantCooldownText">Ready</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="promoBanner" class="promo hidden">
+          <div class="promo-title" id="promoTitle">Limited Time Offer</div>
+          <div class="promo-body"><span id="promoBody">Special pricing active.</span> <strong id="promoDiscount">-25%</strong></div>
+        </div>
+
         <div class="store">
-          <div class="item">
-            <div>
-              <strong>CONTAINMENT FIELD GENERATOR</strong>
-              <p>Auto-stabilizes when Containment &lt; 20%.</p>
+          <div class="store-item" data-id="field_generator" data-price="150">
+            <div class="store-row">
+              <div class="store-name">CONTAINMENT FIELD GENERATOR</div>
+              <div class="store-cost">150 CR</div>
             </div>
-            <div class="actions">
-              <span class="price">150 CR</span>
-              <button data-buy="cfg">Buy</button>
-              <button data-use="cfg">Use</button>
-            </div>
-          </div>
-          <div class="item">
-            <div>
-              <strong>NEURAL ACTIVITY AMPLIFIER</strong>
-              <p>+30 Cognition.</p>
-            </div>
-            <div class="actions">
-              <span class="price">250 CR</span>
-              <button data-buy="naa">Buy</button>
-              <button data-use="naa">Use</button>
+            <div class="store-spec">Auto-stabilizes when Containment &lt; 20%.</div>
+            <div class="store-actions">
+              <button class="btn tiny buy">Buy</button>
+              <button class="btn tiny use">Use</button>
             </div>
           </div>
-          <div class="item">
-            <div>
-              <strong>ENTROPY REGULATION MATRIX</strong>
-              <p>Reduces Entropy over time.</p>
-            </div>
-            <div class="actions">
-              <span class="price">400 CR</span>
-              <button data-buy="erm">Buy</button>
-              <button data-use="erm">Use</button>
-            </div>
-          </div>
-          <div class="item promo">
-            <div>
-              <strong>TEMPORAL STASIS POD</strong>
-              <p>Slows decay while offline (passive).</p>
-            </div>
-            <div class="actions">
-              <span class="price">800 CR</span>
-              <button data-buy="tsp">Buy</button>
-              <button data-use="tsp">Use</button>
-            </div>
-          </div>
-        </div>
-        <div class="microtx">
-          <h4>Premium Lab Cores</h4>
-          <p>Optional cosmetics and boosters. <em>Placeholder — integrate your provider.</em></p>
-          <button id="buy50">Buy 50 PC</button>
-          <button id="buy250">Buy 250 PC</button>
-        </div>
-        <div id="adSlot" class="ad">[ YOUR AD BANNER HERE ]</div>
-      </div>
 
-      <div class="panel" id="panel-research">
-        <h3>Research Allocation</h3>
-        <div class="research">
-          <div class="tech">
-            <div><strong>ADVANCED BIOMECHANICS</strong><p>Unlock structural analysis.</p></div>
-            <div><span>75 RP</span><button data-research="bio">Start</button></div>
+          <div class="store-item" data-id="neural_amplifier" data-price="250">
+            <div class="store-row">
+              <div class="store-name">NEURAL ACTIVITY AMPLIFIER</div>
+              <div class="store-cost">250 CR</div>
+            </div>
+            <div class="store-spec">Accelerates cognitive development. +30 Cognition.</div>
+            <div class="store-actions">
+              <button class="btn tiny buy">Buy</button>
+              <button class="btn tiny use">Use</button>
+            </div>
           </div>
-          <div class="tech">
-            <div><strong>QUANTUM BIOLOGICAL THEORY</strong><p>Reality manipulation detection.</p></div>
-            <div><span>150 RP</span><button data-research="qbt">Start</button></div>
+
+          <div class="store-item" data-id="entropy_regulator" data-price="400">
+            <div class="store-row">
+              <div class="store-name">ENTROPY REGULATION MATRIX</div>
+              <div class="store-cost">400 CR</div>
+            </div>
+            <div class="store-spec">Reduces Entropy over time. Passive.</div>
+            <div class="store-actions">
+              <button class="btn tiny buy">Buy</button>
+              <button class="btn tiny use">Use</button>
+            </div>
           </div>
-          <div class="tech">
-            <div><strong>CONSCIOUSNESS MAPPING</strong><p>Direct communication channel.</p></div>
-            <div><span>250 RP</span><button data-research="cm">Start</button></div>
+
+          <div class="store-item" data-id="deep_scanner" data-price="600">
+            <div class="store-row">
+              <div class="store-name">QUANTUM RESONANCE SCANNER</div>
+              <div class="store-cost">600 CR</div>
+            </div>
+            <div class="store-spec">Molecular-level analysis. Unlocks hidden properties.</div>
+            <div class="store-actions">
+              <button class="btn tiny buy">Buy</button>
+              <button class="btn tiny use">Use</button>
+            </div>
+          </div>
+
+          <div class="store-item" data-id="emergency_sys" data-price="180">
+            <div class="store-row">
+              <div class="store-name">EMERGENCY CONTAINMENT SYSTEM</div>
+              <div class="store-cost">180 CR</div>
+            </div>
+            <div class="store-spec">Single-use breach prevention. Saves from failure.</div>
+            <div class="store-actions">
+              <button class="btn tiny buy">Buy</button>
+              <button class="btn tiny use">Use</button>
+            </div>
+          </div>
+
+          <div class="store-item" data-id="stasis_pod" data-price="800">
+            <div class="store-row">
+              <div class="store-name">TEMPORAL STASIS POD</div>
+              <div class="store-cost">800 CR</div>
+            </div>
+            <div class="store-spec">Slows decay by 75%. Maintains vitals while offline.</div>
+            <div class="store-actions">
+              <button class="btn tiny buy">Buy</button>
+              <button class="btn tiny use">Use</button>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      <div class="panel" id="panel-missions">
-        <h3>Mission Console</h3>
-        <div id="missionBox" class="mission"></div>
-        <div class="formrow">
-          <label>Tick Rate (ms) <input id="tickInput" type="number" min="100" step="100" value="500"></label>
-          <label>Save Interval (s) <input id="saveInput" type="number" min="5" step="5" value="15"></label>
-          <label><input type="checkbox" id="fxToggle" checked> Particles</label>
-          <label><input type="checkbox" id="hapticsToggle"> Haptics</label>
+      <section id="tab-research" class="panel card">
+        <div class="objective">
+          <div class="objective-title">Research Allocation</div>
+          <div class="objective-desc">Points: <span id="uiResearchPoints">0</span> · Generated through experiments and observations.</div>
         </div>
-      </div>
 
-      <div class="panel" id="panel-database">
-        <h3>Event Log</h3>
-        <div id="log" class="log"></div>
-        <div class="downloads">
-          <button id="exportLog">Export Log (.txt)</button>
-          <button id="exportCert">Permadeath Certificate (.md)</button>
+        <div class="store">
+          <div class="store-item research" data-id="biomechanics" data-price="75">
+            <div class="store-row">
+              <div class="store-name">ADVANCED BIOMECHANICS</div>
+              <div class="store-cost">75 RP</div>
+            </div>
+            <div class="store-spec">Unlock biomechanical analysis. Reveals structural composition.</div>
+            <button class="btn tiny research-buy">Start Research</button>
+          </div>
+
+          <div class="store-item research" data-id="quantum_biology" data-price="150">
+            <div class="store-row">
+              <div class="store-name">QUANTUM BIOLOGICAL THEORY</div>
+              <div class="store-cost">150 RP</div>
+            </div>
+            <div class="store-spec">Enables reality manipulation detection.</div>
+            <button class="btn tiny research-buy">Start Research</button>
+          </div>
+
+          <div class="store-item research" data-id="consciousness_mapping" data-price="250">
+            <div class="store-row">
+              <div class="store-name">CONSCIOUSNESS MAPPING</div>
+              <div class="store-cost">250 RP</div>
+            </div>
+            <div class="store-spec">Neural interface protocols for direct communication.</div>
+            <button class="btn tiny research-buy">Start Research</button>
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div class="panel" id="panel-settings">
-        <h3>Settings</h3>
-        <div class="formrow">
-          <label>Theme Scale <input id="scaleInput" type="range" min="0.8" max="1.2" step="0.05" value="1"></label>
-          <label><input type="checkbox" id="reduceMotion"> Reduce Motion</label>
+      <section id="tab-manual" class="panel card">
+        <div class="manual">
+          <h4>Protocol Reference</h4>
+          <p><strong class="pri">Primary</strong> · STABILIZE (+Containment), MONITOR (+Research, +Cognition), ANALYZE (+Research), REINFORCE (+Containment)</p>
+          <p><strong class="warn">Experimental</strong> · STIMULATE (+Cognition,+Metamorph, -Containment), STRESS TEST (Risk/Reward), INDUCE MUTATION (+Mutations), FORCE METAMORPH (Risk)</p>
+          <p><strong class="ok">Advanced</strong> · DEEP SCAN (Requires equipment), NEURAL LINK, EXTRACT SAMPLES, EMERGENCY (Crisis)</p>
+          <h4 class="danger">Critical Warnings</h4>
+          <ul>
+            <li>Containment ≤ 0% = Breach = <span class="danger">PERMADEATH</span></li>
+            <li>Entropy ≥ 100% = Reality Cascade = <span class="danger">PERMADEATH</span></li>
+            <li>Coherence ≤ 0% = Dissolution = <span class="danger">PERMADEATH</span></li>
+            <li>Extended Offline increases decay multiplier</li>
+          </ul>
+          <h4>Keyboard</h4>
+          <p><span class="kbd">S</span> Stabilize · <span class="kbd">M</span> Monitor · <span class="kbd">A</span> Analyze · <span class="kbd">R</span> Reinforce · <span class="kbd">T</span> Stimulate · <span class="kbd">X</span> Stress Test · <span class="kbd">Space</span> Interact · <span class="kbd">Esc</span> Close modals</p>
         </div>
-        <p>Build: PRO-1.0</p>
-      </div>
-    </section>
+      </section>
 
-    <aside class="col sidebar">
-      <div class="card">
-        <h3>Current Objective</h3>
-        <p id="objective">Keep Containment ≥ 80% for 180s.</p>
-      </div>
-      <div class="card">
-        <h3>Next Milestone</h3>
-        <p>Accumulate 150 RP for a Research Breakthrough.</p>
-      </div>
-      <div class="card small">
-        <h3>Survival Tip</h3>
-        <p>Keep Containment high to prevent breach events.</p>
-      </div>
+      <section id="tab-quests" class="panel card">
+        <div class="objective">
+          <div class="objective-title">Mission Console</div>
+          <div class="objective-desc">Dynamic tasks refresh as you complete them. Infinite, procedural, scaling with stage.</div>
+        </div>
+        <div id="questList" class="quests"></div>
+      </section>
+
+      <section id="tab-settings" class="panel card">
+        <div class="settings">
+          <label class="row">
+            <span>Tick Rate (ms)</span>
+            <input id="inpTick" type="number" min="250" step="250" value="1000"/>
+          </label>
+          <label class="row">
+            <span>Save Interval (s)</span>
+            <input id="inpSave" type="number" min="5" step="5" value="10"/>
+          </label>
+          <label class="row">
+            <span>Particles FX</span>
+            <input id="inpFx" type="checkbox" checked />
+          </label>
+          <label class="row">
+            <span>Haptics (mobile)</span>
+            <input id="inpHaptics" type="checkbox" checked />
+          </label>
+          <div class="objective">
+            <div class="objective-title">Ad Placeholder</div>
+            <div class="objective-desc">Load a banner into <code>#adSlot</code> or rely on rotating promo in Requisition.</div>
+          </div>
+          <div id="adSlot" class="ad-slot">[ YOUR AD BANNER HERE ]</div>
+        </div>
+      </section>
     </aside>
+
+    <section class="log card">
+      <div class="card-head">
+        <div class="card-title">Event Log</div>
+        <div class="card-sub">Last 150 events</div>
+      </div>
+      <div id="log" class="log-body"></div>
+    </section>
   </main>
 
-  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-inner" role="document">
-      <button class="close" id="modalClose">×</button>
-      <div id="modalContent"></div>
+  <div class="tip" id="tip">
+    <div class="tip-title">Survival Tip</div>
+    <div id="tipText">Keep Containment ≥ 80% to prevent breach events.</div>
+  </div>
+
+  <div class="modal" id="modalDeath" aria-hidden="true">
+    <div class="modal-box">
+      <button class="close" data-close>&times;</button>
+      <div class="modal-title danger">BIOFORM TERMINATED — PERMADEATH</div>
+      <p id="deathMsg" class="muted">Cause: —</p>
+      <p class="muted small">All research data lost. Facility integrity compromised.</p>
+      <div class="modal-actions">
+        <button id="btnRestart" class="btn">Restart Experiment</button>
+      </div>
     </div>
   </div>
 
-  <template id="tplQuest">
-    <div class="quest">
-      <div class="q-head"><strong class="q-title"></strong><span class="q-timer"></span></div>
-      <p class="q-desc"></p>
-      <div class="q-reward"></div>
+  <div class="modal" id="modalAchievement" aria-hidden="true">
+    <div class="modal-box">
+      <button class="close" data-close>&times;</button>
+      <div class="modal-title ok">Research Breakthrough</div>
+      <div id="achBody"></div>
     </div>
-  </template>
+  </div>
 
-  <footer class="foot">
-    <div>XENOBIO LAB // Pro Terminal · Uptime: <span id="uptimeFoot">00:00</span> · © You</div>
-  </footer>
+  <div class="modal" id="modalIntro" aria-hidden="true">
+    <div class="modal-box">
+      <div class="modal-title pri">Protocol Notice</div>
+      <p><span class="danger">PERMADEATH</span> condition active. This simulation saves locally. Extended offline periods accelerate decay. Proceed only if you acknowledge the risk.</p>
+      <div class="modal-actions">
+        <button id="btnIntroOk" class="btn">Acknowledge</button>
+      </div>
+    </div>
+  </div>
 
-  <script type="module" src="assets/js/main.js"></script>
+  <div id="gdpr" class="gdpr hidden" role="dialog" aria-live="polite">
+    <div class="gdpr-inner">
+      <p><strong>RESEARCH DATA PROTOCOL</strong> — This simulation stores data locally (LocalStorage/Cache). No personal data is transmitted.</p>
+      <div class="gdpr-actions">
+        <button id="gdprAccept" class="btn tiny">Accept & Continue</button>
+        <button id="gdprDecline" class="btn tiny danger">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toasts" class="toasts"></div>
+
+  <script src="assets/js/audio.js"></script>
+  <script src="assets/js/app.js"></script>
 </body>
 </html>
