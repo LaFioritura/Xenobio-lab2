@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>XENOBIO // PRO TERMINAL</title>
+  <meta name="description" content="Professional terminal simulation with procedural bioform, research, quests, and economy.">
+  <link rel="preload" as="audio" href="assets/media/click.wav">
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <div id="gdpr" class="banner">
+    <div>
+      <strong>DATA PROTOCOL.</strong> This simulation stores data locally (LocalStorage/Cache). No personal data is transmitted.
+      <button id="gdprAccept">Accept</button>
+      <button id="gdprDecline">Decline</button>
+    </div>
+  </div>
+
+  <header class="topbar">
+    <div class="brand">BIOFORM ISOLATION TERMINAL // PRO</div>
+    <div class="stats">
+      <span id="funds">CR 0</span>
+      <span id="premium">PC 0</span>
+      <span id="rp">RP 0</span>
+      <span id="threat">THREAT: —</span>
+      <span id="uptime">UPTIME 00:00</span>
+      <label class="toggle"><input type="checkbox" id="audioToggle" checked> Audio</label>
+      <label class="toggle"><input type="checkbox" id="compactToggle"> Compact</label>
+      <button id="resetBtn" class="danger">Reset</button>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="col chamber">
+      <h2>ISOLATION CHAMBER</h2>
+      <canvas id="bioCanvas" width="480" height="300" aria-label="Bioform visualization"></canvas>
+      <div class="bars">
+        <div class="bar"><label>Containment</label><div><i id="barContainment"></i></div></div>
+        <div class="bar"><label>Coherence</label><div><i id="barCoherence"></i></div></div>
+        <div class="bar"><label>Metamorph</label><div><i id="barMetamorph"></i></div></div>
+        <div class="bar"><label>Entropy</label><div><i id="barEntropy"></i></div></div>
+        <div class="bar"><label>Cognition</label><div><i id="barCognition"></i></div></div>
+      </div>
+      <div class="subject" id="subjectLine">Subject —</div>
+    </section>
+
+    <section class="col controls">
+      <nav class="tabs" role="tablist">
+        <button class="tab active" data-tab="protocols">Protocols</button>
+        <button class="tab" data-tab="requisition">Requisition</button>
+        <button class="tab" data-tab="research">R&amp;D</button>
+        <button class="tab" data-tab="missions">Quests</button>
+        <button class="tab" data-tab="database">Database</button>
+        <button class="tab" data-tab="settings">Settings</button>
+      </nav>
+
+      <div class="panel show" id="panel-protocols">
+        <h3>Primary Protocols</h3>
+        <div class="btns">
+          <button data-action="stabilize">Stabilize</button>
+          <button data-action="monitor">Monitor</button>
+          <button data-action="analyze">Analyze</button>
+          <button data-action="reinforce">Reinforce</button>
+        </div>
+        <h3>Experimental Protocols</h3>
+        <div class="btns">
+          <button data-action="stimulate">Stimulate</button>
+          <button data-action="stress">Stress Test</button>
+          <button data-action="mutate">Induce Mutation</button>
+          <button data-action="metamorph">Force Metamorph</button>
+        </div>
+        <h3>Advanced Protocols</h3>
+        <div class="btns">
+          <button data-action="deepscan">Deep Scan</button>
+          <button data-action="neural">Neural Link</button>
+          <button data-action="extract">Extract Samples</button>
+          <button data-action="emergency">Emergency</button>
+        </div>
+        <p class="helper">Keyboard: S Stabilize · M Monitor · A Analyze · R Reinforce · T Stimulate · X Stress · Space Interact · Esc Close.</p>
+      </div>
+
+      <div class="panel" id="panel-requisition">
+        <h3>Research Agency — Funding Console</h3>
+        <div class="store">
+          <div class="item">
+            <div>
+              <strong>CONTAINMENT FIELD GENERATOR</strong>
+              <p>Auto-stabilizes when Containment &lt; 20%.</p>
+            </div>
+            <div class="actions">
+              <span class="price">150 CR</span>
+              <button data-buy="cfg">Buy</button>
+              <button data-use="cfg">Use</button>
+            </div>
+          </div>
+          <div class="item">
+            <div>
+              <strong>NEURAL ACTIVITY AMPLIFIER</strong>
+              <p>+30 Cognition.</p>
+            </div>
+            <div class="actions">
+              <span class="price">250 CR</span>
+              <button data-buy="naa">Buy</button>
+              <button data-use="naa">Use</button>
+            </div>
+          </div>
+          <div class="item">
+            <div>
+              <strong>ENTROPY REGULATION MATRIX</strong>
+              <p>Reduces Entropy over time.</p>
+            </div>
+            <div class="actions">
+              <span class="price">400 CR</span>
+              <button data-buy="erm">Buy</button>
+              <button data-use="erm">Use</button>
+            </div>
+          </div>
+          <div class="item promo">
+            <div>
+              <strong>TEMPORAL STASIS POD</strong>
+              <p>Slows decay while offline (passive).</p>
+            </div>
+            <div class="actions">
+              <span class="price">800 CR</span>
+              <button data-buy="tsp">Buy</button>
+              <button data-use="tsp">Use</button>
+            </div>
+          </div>
+        </div>
+        <div class="microtx">
+          <h4>Premium Lab Cores</h4>
+          <p>Optional cosmetics and boosters. <em>Placeholder — integrate your provider.</em></p>
+          <button id="buy50">Buy 50 PC</button>
+          <button id="buy250">Buy 250 PC</button>
+        </div>
+        <div id="adSlot" class="ad">[ YOUR AD BANNER HERE ]</div>
+      </div>
+
+      <div class="panel" id="panel-research">
+        <h3>Research Allocation</h3>
+        <div class="research">
+          <div class="tech">
+            <div><strong>ADVANCED BIOMECHANICS</strong><p>Unlock structural analysis.</p></div>
+            <div><span>75 RP</span><button data-research="bio">Start</button></div>
+          </div>
+          <div class="tech">
+            <div><strong>QUANTUM BIOLOGICAL THEORY</strong><p>Reality manipulation detection.</p></div>
+            <div><span>150 RP</span><button data-research="qbt">Start</button></div>
+          </div>
+          <div class="tech">
+            <div><strong>CONSCIOUSNESS MAPPING</strong><p>Direct communication channel.</p></div>
+            <div><span>250 RP</span><button data-research="cm">Start</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-missions">
+        <h3>Mission Console</h3>
+        <div id="missionBox" class="mission"></div>
+        <div class="formrow">
+          <label>Tick Rate (ms) <input id="tickInput" type="number" min="100" step="100" value="500"></label>
+          <label>Save Interval (s) <input id="saveInput" type="number" min="5" step="5" value="15"></label>
+          <label><input type="checkbox" id="fxToggle" checked> Particles</label>
+          <label><input type="checkbox" id="hapticsToggle"> Haptics</label>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-database">
+        <h3>Event Log</h3>
+        <div id="log" class="log"></div>
+        <div class="downloads">
+          <button id="exportLog">Export Log (.txt)</button>
+          <button id="exportCert">Permadeath Certificate (.md)</button>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-settings">
+        <h3>Settings</h3>
+        <div class="formrow">
+          <label>Theme Scale <input id="scaleInput" type="range" min="0.8" max="1.2" step="0.05" value="1"></label>
+          <label><input type="checkbox" id="reduceMotion"> Reduce Motion</label>
+        </div>
+        <p>Build: PRO-1.0</p>
+      </div>
+    </section>
+
+    <aside class="col sidebar">
+      <div class="card">
+        <h3>Current Objective</h3>
+        <p id="objective">Keep Containment ≥ 80% for 180s.</p>
+      </div>
+      <div class="card">
+        <h3>Next Milestone</h3>
+        <p>Accumulate 150 RP for a Research Breakthrough.</p>
+      </div>
+      <div class="card small">
+        <h3>Survival Tip</h3>
+        <p>Keep Containment high to prevent breach events.</p>
+      </div>
+    </aside>
+  </main>
+
+  <div id="modal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-inner" role="document">
+      <button class="close" id="modalClose">×</button>
+      <div id="modalContent"></div>
+    </div>
+  </div>
+
+  <template id="tplQuest">
+    <div class="quest">
+      <div class="q-head"><strong class="q-title"></strong><span class="q-timer"></span></div>
+      <p class="q-desc"></p>
+      <div class="q-reward"></div>
+    </div>
+  </template>
+
+  <footer class="foot">
+    <div>XENOBIO LAB // Pro Terminal · Uptime: <span id="uptimeFoot">00:00</span> · © You</div>
+  </footer>
+
+  <script type="module" src="assets/js/main.js"></script>
+</body>
+</html>
